@@ -4,14 +4,18 @@ import random
 import math
 
 class SampleData:
-    def __init__(self, filename):
+    def __init__(self, filename, fstart = 0, fend = -1, height = 240, width = 320):
         self.desc_filename = filename
         self.p = '/share/data/CodaLab/ConGD/ConGD_phase_1/'
+        self.fstart = fstart
+        self.fend = fend
+        self.height = height
+        self.width = width
         self.read_desc()
 
     def read_desc(self):
         with open(self.desc_filename) as f:
-            lines = f.readlines() # len = 302271
+            lines = f.readlines()[self.fstart: self.fend] # len = 302271
             self.meta_data = []
             for line in lines:
                 line = line.split('\n')[0]
@@ -46,20 +50,34 @@ class SampleData:
                 continue
             gray_frame = cv2.cvtColor(rgb_frame, cv2.COLOR_BGR2GRAY)
             deep_frame = cv2.cvtColor(deep_frame, cv2.COLOR_BGR2GRAY)
-            two_channel_frames.append([gray_frame, deep_frame])
+            gray_frame = np.resize(gray_frame, (self.height, self.width))
+            deep_frame = np.resize(deep_frame, (self.height, self.width))
+            two_channel_frames.append(self.concat_image(gray_frame, deep_frame))
 
         rgb_cap.release()
         deep_cap.release()
         return two_channel_frames, label
 
-    # batch item shape [2 * 240 * 320 * 1]
+    def concat_image(self, gray_frame, deep_frame):
+        result = []
+        for i in range(self.height):
+            result.append([])
+            for j in range(self.width):
+                result[i].append([0,0])
+        for i in range(self.height):
+            for j in range(self.width):
+                result[i][j][0] = gray_frame[i][j]
+                result[i][j][1] = deep_frame[i][j]
+        return result
+
+    # batch shape [batch_size, height, width, 2]
     def batch(self, size = 10):
         values = []
         labels = []
         for i in range(size):
             v, l = self.select(self.rand())
             values.append(v)
-            labels.append(l)
+            labels.append(l-1)
         return values, labels
 
 def read_valid_data():
