@@ -28,10 +28,10 @@ def cal_sample(sample_start, sample_end, action_arr, gray_frames, deep_frames):
     return sample, 0
 
 def save_sample(video_name, sample_start, sample_end, label, desc):
-    img_path = video_name + ':' + str(sample_start) + '-' + str(sample_end) + '.txt ' + str(label)
+    img_path = video_name + ':' + str(sample_start) + '-' + str(sample_end) + ' ' + str(label)
     desc.write(img_path + '\n')
 
-def reshape_train_set(sample_size = 9, desc_file_name = 'sample_data_desc.txt'):
+def reshape_train_set(sample_size = 9, desc_file_name = 'sample_data_desc.txt', stride = 4):
     print 'reading training set...'
     p = '/share/data/CodaLab/ConGD/ConGD_phase_1/'
     filename = 'train.txt'
@@ -40,11 +40,7 @@ def reshape_train_set(sample_size = 9, desc_file_name = 'sample_data_desc.txt'):
 
     with open(p+filename) as f:
         lines = f.readlines()
-        cnt = 0
         for line in lines:
-            if cnt % 100 == 0:
-                print ("%.2f%%"%(float(cnt)/len(lines)*100))
-            cnt += 1
             line = line.split('\n')[0].split(' ')
             video_name = line[0]
             video_rgb_name = line[0] + '.M.avi'
@@ -66,8 +62,9 @@ def reshape_train_set(sample_size = 9, desc_file_name = 'sample_data_desc.txt'):
                 action_arr.append((start-1, end, label))
             
 
-
-            for j in range(0, cap_len, 4):
+            if cap_len < 16:
+                continue
+            for j in range(0, cap_len, stride):
                 sample_start = j
                 sample_end = j + sample_size
                 should_stop = False
@@ -126,4 +123,4 @@ def read_valid_data():
     return valid_gray_value, valid_deep_value
 
 if __name__ == '__main__':
-    reshape_train_set(sample_size = 16, desc_file_name = 'sample_16_desc.txt')
+    reshape_train_set(sample_size = 16, desc_file_name = 'sample_16_desc.txt', stride = 4)
