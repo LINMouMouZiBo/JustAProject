@@ -59,15 +59,16 @@ class SampleData:
         return two_channel_frames, label
 
     def concat_image(self, gray_frame, deep_frame):
-        result = []
-        for i in range(self.height):
-            result.append([])
-            for j in range(self.width):
-                result[i].append([0,0])
-        for i in range(self.height):
-            for j in range(self.width):
-                result[i][j][0] = gray_frame[i][j]
-                result[i][j][1] = deep_frame[i][j]
+        # result = []
+        # for i in range(self.height):
+        #     result.append([])
+        #     for j in range(self.width):
+        #         result[i].append([0,0])
+        # for i in range(self.height):
+        #     for j in range(self.width):
+        #         result[i][j][0] = gray_frame[i][j]
+        #         result[i][j][1] = deep_frame[i][j]
+        result = np.dstack((gray_frame, deep_frame))
         return result
 
     # batch shape [batch_size, height, width, 2]
