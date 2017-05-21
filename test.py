@@ -27,7 +27,7 @@ import tensorflow as tf
 import c3d_model
 import math
 import numpy as np
-import train_as_valid_data
+import read_valid_data
 
 # Basic model parameters as external flags.
 flags = tf.app.flags
@@ -119,14 +119,14 @@ def _variable_with_weight_decay(name, shape, wd):
   return var
 
 def run_testing():
-  vd = train_as_valid_data.ValidationData(height = 112, width = 112)
-  valid_file_handle = open('train_result.txt', "w")
+  vd = read_valid_data.ValidationData(height = 112, width = 112)
+  valid_file_handle = open('valid_result.txt', "w")
   # Get the sets of images and labels for training, validation, and
   # Tell TensorFlow that the model will be built into the default Graph.
 
   # Create model directory
   use_pretrained_model = True
-  pretrained_file_name = 'c3d_ucf_model-2680'                                                                            
+  pretrained_file_name = 'c3d_ucf_model-17800'                                                                            
   with tf.Graph().as_default():
     global_step = tf.get_variable(
                     'global_step',
