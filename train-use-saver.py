@@ -39,22 +39,6 @@ flags.DEFINE_integer('batch_size', 10, 'Batch size.')
 FLAGS = flags.FLAGS
 MOVING_AVERAGE_DECAY = 0.9999
 model_save_dir = './models'
-var_dict = {}
-use_pretrained_model = True
-pretrained_file_name = "./models/c3d_finetuning_new1.npy"
-data_dict = {}
-
-
-def save_npy(sess, npy_path="./models/c3d_finetuning_new1.npy"):
-    assert isinstance(sess, tf.Session)
-    data_dict = {}
-    for name, var in list(var_dict.items()):
-        var_out = sess.run(var)
-        data_dict[name] = var_out
-
-    np.save(npy_path, data_dict)
-    print(("file saved", npy_path))
-    return npy_path
 
 def placeholder_inputs(batch_size):
   """Generate placeholder variables to represent the input tensors.
@@ -126,17 +110,11 @@ def tower_acc(logit, labels):
 
 def _variable_on_cpu(name, shape, initializer):
   with tf.device('/cpu:0'):
-    if use_pretrained_model :
-      var = tf.get_variable(name, initializer=data_dict[name])
-    else:
-      var = tf.get_variable(name, shape, initializer=initializer)
+    var = tf.get_variable(name, shape, initializer=initializer)
   return var
 
 def _variable_with_weight_decay(name, shape, wd):
   var = _variable_on_cpu(name, shape, tf.contrib.layers.xavier_initializer())
-
-  var_dict[name] = var
-
   if wd is not None:
     weight_decay = tf.multiply(tf.nn.l2_loss(var), wd, name='weight_loss')
     tf.add_to_collection('losses', weight_decay)
@@ -151,10 +129,8 @@ def run_training():
   # Create model directory
   if not os.path.exists(model_save_dir):
       os.makedirs(model_save_dir)
-
-  if use_pretrained_model:
-      global data_dict
-      data_dict = np.load(pretrained_file_name, encoding='latin1').item()
+  use_pretrained_model = False
+  model_filename = "./sports1m_finetuning_ucf101.model"
 
   with tf.Graph().as_default():
     global_step = tf.get_variable(
@@ -176,7 +152,7 @@ def run_training():
         with tf.name_scope('%s_%d' % ('dextro-research', gpu_index)) as scope:
           with tf.variable_scope('var_name') as var_scope:
             weights = {
-              'wc1': _variable_with_weight_decay('wc1', [3, 3, 3, c3d_model.CHANNELS, 64], 0.0005),
+              'wc1': _variable_with_weight_decay('wc1', [3, 3, 3, 2, 64], 0.0005),
               'wc2': _variable_with_weight_decay('wc2', [3, 3, 3, 64, 128], 0.0005),
               'wc3a': _variable_with_weight_decay('wc3a', [3, 3, 3, 128, 256], 0.0005),
               'wc3b': _variable_with_weight_decay('wc3b', [3, 3, 3, 256, 256], 0.0005),
@@ -256,19 +232,17 @@ def run_training():
       test_writer = tf.summary.FileWriter('./visual_logs/test', sess.graph)
       for step in xrange(FLAGS.max_steps):
         start_time = time.time()
-        train_images, train_labels = train_sample.batch(size = FLAGS.batch_size * gpu_num)
-        read_data_time = time.time() - start_time
-
+        train_images, train_labels = train_sample.batch(size = 20)
         sess.run(train_op, feed_dict={
                         images_placeholder: train_images,
                         labels_placeholder: train_labels
                         })
         duration = time.time() - start_time
-        print('Step %d: %.3f sec contains read data time %.3f' % (step, duration, read_data_time))
+        print('Step %d: %.3f sec' % (step, duration))
 
         # Save a checkpoint and evaluate the model periodically.
         if (step) % 10 == 0 or (step + 1) == FLAGS.max_steps:
-          save_npy(sess)
+          saver.save(sess, os.path.join(model_save_dir, 'c3d_ucf_model'), global_step=step)
           print('Training Data Eval:')
           summary, acc = sess.run(
                           [merged, accuracy],
@@ -279,7 +253,7 @@ def run_training():
           print ("accuracy: " + "{:.5f}".format(acc))
           train_writer.add_summary(summary, step)
           print('Validation Data Eval:')
-          val_images, val_labels = test_sample.batch(size = FLAGS.batch_size * gpu_num)
+          val_images, val_labels = test_sample.batch(size = 20)
           summary, acc = sess.run(
                           [merged, accuracy],
                           feed_dict={

@@ -1,13 +1,20 @@
 import os
-import time
-import numpy
-from six.moves import xrange  # pylint: disable=redefined-builtin
+
+import numpy as np
 import tensorflow as tf
 import c3d_model
-import math
-import numpy as np
-import read_sample_data
-import train
+
+def _variable_on_cpu(name, shape, initializer):
+  with tf.device('/cpu:0'):
+    var = tf.get_variable(name, shape, initializer=initializer)
+  return var
+
+def _variable_with_weight_decay(name, shape, wd):
+  var = _variable_on_cpu(name, shape, tf.contrib.layers.xavier_initializer())
+  if wd is not None:
+    weight_decay = tf.multiply(tf.nn.l2_loss(var), wd, name='weight_loss')
+    tf.add_to_collection('losses', weight_decay)
+  return var
 
 
 class Par:
@@ -107,7 +114,7 @@ def changeModel():
     par = Par(249, 2)
     weights, biases = par.getW()
     with tf.Session(config=tf.ConfigProto(allow_soft_placement=True, log_device_placement=False)) as sess:
-        saver = tf.train.Saver(weights.values() + biases.values())
+        # saver = tf.train.Saver(weights.values() + biases.values())
         init = tf.global_variables_initializer()
         sess.run(init)
         reader = tf.train.NewCheckpointReader("./models/sports1m_finetuning_ucf101.model")
@@ -139,13 +146,13 @@ def changeModel():
 
         for update in updates:
             sess.run(update)
-        np.save("./models/c3d_finetuning_new", data_dict)
-        saver.save(sess, "./models/c3d_finetuning_new.model")
+        np.save("./models/c3d_finetuning_new2", data_dict)
+        # saver.save(sess, "./models/c3d_finetuning_new.model")
 
 
 if __name__ == '__main__':
-    # changeModel()
+    changeModel()
     # readMode()
     # readMode2()
-    compareTwoModel()
+    # compareTwoModel()
 
