@@ -236,7 +236,8 @@ def run_training():
       null_op = tf.no_op()
 
       # Create a saver for writing training checkpoints.
-      saver = tf.train.Saver(weights.values() + biases.values())
+      # saver = tf.train.Saver(weights.values() + biases.values())
+
       init = tf.global_variables_initializer()
 
       # Create a session for running Ops on the Graph.
@@ -247,8 +248,8 @@ def run_training():
                                       )
                       )
       sess.run(init)
-      if os.path.isfile(model_filename) and use_pretrained_model:
-        saver.restore(sess, model_filename)
+      # if use_pretrained_model:
+        # saver.restore(sess, os.path.join(model_save_dir, pretrained_file_name))
 
       # Create summary writter
       merged = tf.summary.merge_all()

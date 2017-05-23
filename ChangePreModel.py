@@ -26,30 +26,30 @@ class Par:
         with tf.variable_scope('var_name') as scope:
             # scope.reuse_variables()
             weights = {
-                'wc1': train._variable_with_weight_decay('wc1', [3, 3, 3, c3d_model.CHANNELS, 64], 0.0005),
-                'wc2': train._variable_with_weight_decay('wc2', [3, 3, 3, 64, 128], 0.0005),
-                'wc3a': train._variable_with_weight_decay('wc3a', [3, 3, 3, 128, 256], 0.0005),
-                'wc3b': train._variable_with_weight_decay('wc3b', [3, 3, 3, 256, 256], 0.0005),
-                'wc4a': train._variable_with_weight_decay('wc4a', [3, 3, 3, 256, 512], 0.0005),
-                'wc4b': train._variable_with_weight_decay('wc4b', [3, 3, 3, 512, 512], 0.0005),
-                'wc5a': train._variable_with_weight_decay('wc5a', [3, 3, 3, 512, 512], 0.0005),
-                'wc5b': train._variable_with_weight_decay('wc5b', [3, 3, 3, 512, 512], 0.0005),
-                'wd1': train._variable_with_weight_decay('wd1', [8192, 4096], 0.0005),
-                'wd2': train._variable_with_weight_decay('wd2', [4096, 4096], 0.0005),
-                'wout': train._variable_with_weight_decay('wout', [4096, c3d_model.NUM_CLASSES], 0.0005)
+                'wc1': _variable_with_weight_decay('wc1', [3, 3, 3, c3d_model.CHANNELS, 64], 0.0005),
+                'wc2': _variable_with_weight_decay('wc2', [3, 3, 3, 64, 128], 0.0005),
+                'wc3a': _variable_with_weight_decay('wc3a', [3, 3, 3, 128, 256], 0.0005),
+                'wc3b': _variable_with_weight_decay('wc3b', [3, 3, 3, 256, 256], 0.0005),
+                'wc4a': _variable_with_weight_decay('wc4a', [3, 3, 3, 256, 512], 0.0005),
+                'wc4b': _variable_with_weight_decay('wc4b', [3, 3, 3, 512, 512], 0.0005),
+                'wc5a': _variable_with_weight_decay('wc5a', [3, 3, 3, 512, 512], 0.0005),
+                'wc5b': _variable_with_weight_decay('wc5b', [3, 3, 3, 512, 512], 0.0005),
+                'wd1': _variable_with_weight_decay('wd1', [8192, 4096], 0.0005),
+                'wd2': _variable_with_weight_decay('wd2', [4096, 4096], 0.0005),
+                'wout': _variable_with_weight_decay('wout', [4096, c3d_model.NUM_CLASSES], 0.0005)
             }
             biases = {
-                'bc1': train._variable_with_weight_decay('bc1', [64], 0.000),
-                'bc2': train._variable_with_weight_decay('bc2', [128], 0.000),
-                'bc3a': train._variable_with_weight_decay('bc3a', [256], 0.000),
-                'bc3b': train._variable_with_weight_decay('bc3b', [256], 0.000),
-                'bc4a': train._variable_with_weight_decay('bc4a', [512], 0.000),
-                'bc4b': train._variable_with_weight_decay('bc4b', [512], 0.000),
-                'bc5a': train._variable_with_weight_decay('bc5a', [512], 0.000),
-                'bc5b': train._variable_with_weight_decay('bc5b', [512], 0.000),
-                'bd1': train._variable_with_weight_decay('bd1', [4096], 0.000),
-                'bd2': train._variable_with_weight_decay('bd2', [4096], 0.000),
-                'bout': train._variable_with_weight_decay('bout', [c3d_model.NUM_CLASSES], 0.000),
+                'bc1': _variable_with_weight_decay('bc1', [64], 0.000),
+                'bc2': _variable_with_weight_decay('bc2', [128], 0.000),
+                'bc3a': _variable_with_weight_decay('bc3a', [256], 0.000),
+                'bc3b': _variable_with_weight_decay('bc3b', [256], 0.000),
+                'bc4a': _variable_with_weight_decay('bc4a', [512], 0.000),
+                'bc4b': _variable_with_weight_decay('bc4b', [512], 0.000),
+                'bc5a': _variable_with_weight_decay('bc5a', [512], 0.000),
+                'bc5b': _variable_with_weight_decay('bc5b', [512], 0.000),
+                'bd1': _variable_with_weight_decay('bd1', [4096], 0.000),
+                'bd2': _variable_with_weight_decay('bd2', [4096], 0.000),
+                'bout': _variable_with_weight_decay('bout', [c3d_model.NUM_CLASSES], 0.000),
             }
         return weights, biases
 
