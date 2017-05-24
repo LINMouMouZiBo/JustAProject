@@ -9,7 +9,7 @@
 - `train-use-saver.py`: 训练文件，使用tf自带的saver函数加载、保存模型，saver函数保存模型会生成三个文件，所以推荐使用train.py进行训练
 	- 训练时记得修改os.environ["CUDA_VISIBLE_DEVICES"]="2,3"来限制选择显卡
 - `test.py`: 测试文件,使用.npy文件进行训练，推荐使用这个版本来训练
-- `test-use-saver.py`: 测试文件，使用tf自带的saver函数加载、保存模型，saver函数保存模型会生成三个文件，所以推荐使用train.py进行训练
+- `test-use-saver.py`: 测试文件，使用tf自带的saver函数加载，saver函数加载模型需要三个文件，所以推荐使用test.py进行预测
 - `./model`: 运行后才会出现的目录，运行后会把训练过程的权值记录到该目录下
 - `./visuak_logs`: 运行后才会出现的目录，运行后会把可视化数据记录到该目录下
 - 'gen_desc.py': 采样生成desc.txt类文件的脚本
