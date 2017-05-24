@@ -43,7 +43,7 @@ class ValidationData:
             deep_frame = np.resize(deep_frame, (self.height, self.width))
             two_channel_frames.append(self.concat_image(gray_frame, deep_frame))
         
-        while len(two_channel_frames) < 9:
+        while len(two_channel_frames) < self.sample_size:
             two_channel_frames.append(two_channel_frames[-1])
 
         rgb_cap.release()
