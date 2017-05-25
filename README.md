@@ -15,7 +15,7 @@
 - 'gen_desc.py': 采样生成desc.txt类文件的脚本
 - 'sample_16_desc.txt':　按16帧，stride=4采样后数据的描述文件
 - 'evalutation.py':　实现官网提供的准确率计算方法，输入为两个文件，一个为预测结果文件，一个为对应的groundTrue
-- 'ChangePreModel.py':　文件中的changeModel函数，可以读取原先的sports1m_finetuning_ucf101.model中的参数，提取shape符合需要的参数，对于不符合的参数，用正态分布随机初设化
+- 'ChangePreModel.py':　文件中的changeModel函数，可以读取原先的sports1m_finetuning_ucf101.model中的参数来生成训练需要的npy文件，提取shape符合需要的参数，对于不符合的参数，用正态分布随机初设化
 	- sports1m_finetuning_ucf101.model（原来C3D代码提供的模型） 文件在 /home/linzibo/JustAProject/models 目录下可以找到
 
 ## Run
