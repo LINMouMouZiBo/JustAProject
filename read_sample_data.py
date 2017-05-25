@@ -4,7 +4,7 @@ import random
 import math
 
 class SampleData:
-    def __init__(self, filename, fstart = 0, fend = -1, height = 240, width = 320, start_cnt = 0):
+    def __init__(self, filename, fstart = 0, fend = -1, height = 240, width = 320, start_cnt = 0, interpolate_size = 16):
         self.desc_filename = filename
         self.p = '/share/data/CodaLab/ConGD/ConGD_phase_1/'
         self.fstart = fstart
@@ -12,6 +12,7 @@ class SampleData:
         self.height = height
         self.width = width
         self.cnt = start_cnt
+        self.interpolate_size = interpolate_size
         self.read_desc()
 
     def read_desc(self):
@@ -60,7 +61,16 @@ class SampleData:
 
         rgb_cap.release()
         deep_cap.release()
+        
+        two_channel_frames = self.interpolate(two_channel_frames)
+
         return two_channel_frames, label
+
+    def interpolate(self, two_channel_frames):
+        while len(two_channel_frames) < self.interpolate_size:
+            r = int(math.floor(random.random() * len(two_channel_frames)))
+            two_channel_frames = two_channel_frames[:r] + [two_channel_frames[r]] +two_channel_frames[r:]
+        return two_channel_frames
 
     def concat_image(self, gray_frame, deep_frame):
         result = np.dstack((gray_frame, deep_frame))
@@ -72,10 +82,15 @@ class SampleData:
         labels = []
         for i in range(size):
             v, l = self.select(self.rand())
+            print len(v), l
             values.append(v)
             labels.append(l-1)
         return values, labels
 
 if __name__ == '__main__':
-    sample = SampleData('shuffle_sample_16_desc.txt')
-    values, labels = sample.batch(size = 15)
+    sample = SampleData('shuffle_sample_16_desc.txt', interpolate_size = 16)
+    values, labels = sample.batch(size = 20)
+    sample = SampleData('shuffle_sample_32_10_desc.txt', interpolate_size = 32)
+    values, labels = sample.batch(size = 20)
+    sample = SampleData('shuffle_sample_64_20_desc.txt', interpolate_size = 64)
+    values, labels = sample.batch(size = 20)
