@@ -34,7 +34,7 @@ import read_sample_data
 flags = tf.app.flags
 gpu_num = 2
 #flags.DEFINE_float('learning_rate', 0.0, 'Initial learning rate.')
-flags.DEFINE_integer('max_steps', 5000, 'Number of steps to run trainer.')
+flags.DEFINE_integer('max_steps', 20000, 'Number of steps to run trainer.')
 flags.DEFINE_integer('batch_size', 10, 'Batch size.')
 FLAGS = flags.FLAGS
 MOVING_AVERAGE_DECAY = 0.9999
@@ -143,8 +143,8 @@ def _variable_with_weight_decay(name, shape, wd):
   return var
 
 def run_training():
-  train_sample = read_sample_data.SampleData('sample_data_desc.txt', fstart = 0, fend = 250000, height = c3d_model.CROP_SIZE, width = c3d_model.CROP_SIZE)
-  test_sample = read_sample_data.SampleData('sample_data_desc.txt', fstart = 250000, fend = -1, height = c3d_model.CROP_SIZE, width = c3d_model.CROP_SIZE)
+  train_sample = read_sample_data.SampleData('shuffle_sample_16_desc.txt', fstart = 0, fend = 200000, height = c3d_model.CROP_SIZE, width = c3d_model.CROP_SIZE)
+  test_sample = read_sample_data.SampleData('shuffle_sample_16_desc.txt', fstart = 200000, fend = -1, height = c3d_model.CROP_SIZE, width = c3d_model.CROP_SIZE)
   # Get the sets of images and labels for training, validation, and
   # Tell TensorFlow that the model will be built into the default Graph.
 
