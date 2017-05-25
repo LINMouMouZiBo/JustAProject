@@ -4,18 +4,19 @@ import random
 import math
 
 class SampleData:
-    def __init__(self, filename, fstart = 0, fend = -1, height = 240, width = 320):
+    def __init__(self, filename, fstart = 0, fend = -1, height = 240, width = 320, start_cnt = 0):
         self.desc_filename = filename
         self.p = '/share/data/CodaLab/ConGD/ConGD_phase_1/'
         self.fstart = fstart
         self.fend = fend
         self.height = height
         self.width = width
+        self.cnt = start_cnt
         self.read_desc()
 
     def read_desc(self):
         with open(self.desc_filename) as f:
-            lines = f.readlines()[self.fstart: self.fend] # len = 302271
+            lines = f.readlines()[self.fstart: self.fend]
             self.meta_data = []
             for line in lines:
                 line = line.split('\n')[0]
@@ -29,7 +30,10 @@ class SampleData:
                                        'label':label})
 
     def rand(self):
-        return int(math.floor(random.random() * len(self.meta_data)))
+        result = self.cnt % len(self.meta_data)
+        self.cnt += 1
+        return result
+        # return int(math.floor(random.random() * len(self.meta_data)))
     
     def select(self, n):
         video_rgb_name = self.meta_data[n]['video_name'] + '.M.avi'
@@ -59,15 +63,6 @@ class SampleData:
         return two_channel_frames, label
 
     def concat_image(self, gray_frame, deep_frame):
-        # result = []
-        # for i in range(self.height):
-        #     result.append([])
-        #     for j in range(self.width):
-        #         result[i].append([0,0])
-        # for i in range(self.height):
-        #     for j in range(self.width):
-        #         result[i][j][0] = gray_frame[i][j]
-        #         result[i][j][1] = deep_frame[i][j]
         result = np.dstack((gray_frame, deep_frame))
         return result
 
@@ -77,53 +72,11 @@ class SampleData:
         labels = []
         for i in range(size):
             v, l = self.select(self.rand())
+            print l
             values.append(v)
             labels.append(l-1)
         return values, labels
 
-def read_valid_data():
-    print 'reading validation set...'
-    p = '/share/data/CodaLab/ConGD/ConGD_phase_1/'
-    filename = 'valid.txt'
-
-    valid_gray_value = []
-    valid_deep_value = []
-
-    with open(p+filename) as f:
-        lines = f.readlines()
-        print len(lines)
-        cnt = 0
-        for line in lines:
-            if cnt % 100 == 0:
-                print ("%.2f%%"%(float(cnt)/len(lines)*100))
-            cnt += 1
-            line = line.split('\n')[0]
-            video_rgb_name = line + '.M.avi'
-            video_deep_name = line + '.K.avi'
-            rgb_cap = cv2.VideoCapture(p + 'valid/' + video_rgb_name)
-            deep_cap = cv2.VideoCapture(p + 'valid/' + video_deep_name)
-            gray_frames = []
-            deep_frames = []
-
-            rgb_cap_len = int(rgb_cap.get(7))
-            # deep_cap_len = int(rgb_cap.get(7))
-
-            for j in range(rgb_cap_len):
-                rgb_ret, rgb_frame = rgb_cap.read()
-                deep_ret, deep_frame = deep_cap.read()
-                gray_frame = cv2.cvtColor(rgb_frame, cv2.COLOR_BGR2GRAY)
-                gray_frames.append(gray_frame)
-                deep_frames.append(deep_frame)
-
-            valid_gray_value.append(gray_frames)
-            valid_deep_value.append(deep_frames)
-            
-            rgb_cap.release()
-            deep_cap.release()
-
-    return valid_gray_value, valid_deep_value
-
 if __name__ == '__main__':
-    sample = SampleData('sample_data_desc.txt')
+    sample = SampleData('shuffle_sample_16_desc.txt')
     values, labels = sample.batch(size = 15)
-    # valid_gray_value, valid_deep_value = read_valid_data()
