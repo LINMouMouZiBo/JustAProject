@@ -161,7 +161,11 @@ def run_testing():
       for i in range(vd.length):
         print i
         buf = []
-        samples, video_name = vd.select_with_sampling(i)
+        try:
+            samples, video_name = vd.select_with_sampling(i)
+        except Exception, e:
+            print e.message
+            continue
         buf.append(video_name)
         for j in range(len(samples)):
           sample = samples[j]['sample']
