@@ -82,7 +82,6 @@ class SampleData:
         labels = []
         for i in range(size):
             v, l = self.select(self.rand())
-            print len(v), l
             values.append(v)
             labels.append(l-1)
         return values, labels

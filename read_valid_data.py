@@ -2,11 +2,11 @@ import numpy as np
 import cv2
 
 class ValidationData:
-    def __init__(self, height = 240, width = 320):
+    def __init__(self, height = 240, width = 320, sample_size = 16, sample_stride = 4):
         self.p = '/share/data/CodaLab/ConGD/ConGD_phase_1/'
         self.filename = 'valid.txt'
-        self.sample_size = 9
-        self.sample_stride = 4
+        self.sample_size = sample_size
+        self.sample_stride = sample_stride
         self.height = height
         self.width = width
         self.read_desc()
@@ -60,15 +60,19 @@ class ValidationData:
         for j in range(0, cap_len, self.sample_stride):
             sample_start = j
             sample_end = j + self.sample_size
+            should_stop = False
             if sample_end > cap_len:
                 sample_start = cap_len - self.sample_size
                 sample_end = cap_len
+                should_stop = True
             # [sample_start, sample_end)
             sample = two_channel_frames[sample_start: sample_end]
             # index start from 1
             result.append({"sample": sample,
                            "start": sample_start + 1,
                            "end": sample_end})
+            if should_stop:
+                break
         return result
 
 
