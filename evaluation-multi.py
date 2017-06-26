@@ -50,15 +50,18 @@ def getDict(file_name):
             res[video_name] = clips
     return res
 
-def eval(groundTrue_file_name, predict_file_name):
+def eval(groundTrue_file_name, predict_file_name, result_save_name):
     groundDict = getDict(groundTrue_file_name)
     preDict = getDict(predict_file_name)
     Js = 0.0
-    for name in preDict.keys():
-        Js += getJaccard(groundDict[name], preDict[name])
-    Js = Js / len(preDict)
-    print("Evalution Jaccard Index : %.6f" % Js)
+    with open(result_save_name, 'w') as f:
+        for name in preDict.keys():
+            sJs = getJaccard(groundDict[name], preDict[name])
+            f.write('{0} {1}\n'.format(name, sJs))
+            Js += sJs
+        Js = Js / len(preDict)
+        f.write("Evalution Jaccard Index : %.6f" % Js)
 
 
 if __name__ == '__main__':
-    eval(groundTrue_file_name='/share/data/CodaLab/ConGD/ConGD_phase_1/train.txt', predict_file_name='./valid_prediction.txt')
+    eval(groundTrue_file_name='/share/data/CodaLab/ConGD/ConGD_phase_1/train.txt', predict_file_name='./valid_result.txt', result_save_name='./evaluation_result.txt')
