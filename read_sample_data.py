@@ -30,7 +30,7 @@ class SampleData:
                 isAppend = False
                 if self.label_from <= label and label <= self.label_to:
                     isAppend = True
-                    label -= self.label_from + 1
+                    label = label - self.label_from + 1
                 elif random.random() < 0.1:
                     isAppend =True
                     label = 0
