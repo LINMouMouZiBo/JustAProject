@@ -2,9 +2,9 @@ import numpy as np
 import cv2
 import random
 import math
-
+# 101 150
 class SampleData:
-    def __init__(self, filename, fstart = 0, fend = -1, height = 240, width = 320, start_cnt = 0, interpolate_size = 16):
+    def __init__(self, filename, fstart = 0, fend = -1, height = 240, width = 320, start_cnt = 0, interpolate_size = 16, label_from = 1, label_to = 249):
         self.desc_filename = filename
         self.p = '/share/data/CodaLab/ConGD/ConGD_phase_1/'
         self.fstart = fstart
@@ -13,6 +13,8 @@ class SampleData:
         self.width = width
         self.cnt = start_cnt
         self.interpolate_size = interpolate_size
+        self.label_from = label_from
+        self.label_to = label_to
         self.read_desc()
 
     def read_desc(self):
@@ -25,10 +27,19 @@ class SampleData:
                 rest, label = rest.split(' ')
                 start, end = rest.split('-')
                 start, end, label = int(start), int(end), int(label)
-                self.meta_data.append({'video_name':video_name,
-                                       'start':start, 
-                                       'end':end, 
-                                       'label':label})
+                isAppend = False
+                if self.label_from <= label and label <= self.label_to:
+                    isAppend = True
+                    label -= self.label_from + 1
+                elif random.random() < 0.1:
+                    isAppend =True
+                    label = 0
+                if isAppend == True:
+                    self.meta_data.append({'video_name':video_name,
+                                           'start':start, 
+                                           'end':end, 
+                                           'label':label})
+
 
     def rand(self):
         result = self.cnt % len(self.meta_data)
@@ -83,13 +94,15 @@ class SampleData:
         for i in range(size):
             v, l = self.select(self.rand())
             values.append(v)
-            labels.append(l-1)
+            labels.append(l)
         return values, labels
 
 if __name__ == '__main__':
-    sample = SampleData('shuffle_sample_16_desc.txt', interpolate_size = 16)
+    sample = SampleData('shuffle_sample_16_desc.txt', interpolate_size = 16, label_from = 101, label_to=125)
     values, labels = sample.batch(size = 20)
-    sample = SampleData('shuffle_sample_32_10_desc.txt', interpolate_size = 32)
-    values, labels = sample.batch(size = 20)
-    sample = SampleData('shuffle_sample_64_20_desc.txt', interpolate_size = 64)
-    values, labels = sample.batch(size = 20)
+    print labels
+    # sample = SampleData('shuffle_sample_32_10_desc.txt', interpolate_size = 32)
+    # values, labels = sample.batch(size = 20)
+    # sample = SampleData('shuffle_sample_64_20_desc.txt', interpolate_size = 64)
+    # values, labels = sample.batch(size = 20)
+
