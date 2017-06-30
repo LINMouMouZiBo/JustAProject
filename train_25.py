@@ -2,7 +2,7 @@ import sys
 import os  
 sys.path = sys.path + ['/usr/local/anaconda/lib/python27.zip', '/usr/local/anaconda/lib/python2.7', '/usr/local/anaconda/lib/python2.7/plat-linux2', '/usr/local/anaconda/lib/python2.7/lib-tk', '/usr/local/anaconda/lib/python2.7/lib-old', '/usr/local/anaconda/lib/python2.7/lib-dynload', '/usr/local/anaconda/lib/python2.7/site-packages', '/usr/local/anaconda/lib/python2.7/site-packages/Sphinx-1.5.1-py2.7.egg', '/usr/local/anaconda/lib/python2.7/site-packages/setuptools-27.2.0-py2.7.egg']
 
-os.environ["CUDA_VISIBLE_DEVICES"]="0"
+os.environ["CUDA_VISIBLE_DEVICES"]="3"
 # Copyright 2015 Google Inc. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -36,17 +36,17 @@ gpu_num = 1
 RUN = 1
 #flags.DEFINE_float('learning_rate', 0.0, 'Initial learning rate.')
 flags.DEFINE_integer('max_steps', 20000, 'Number of steps to run trainer.')
-flags.DEFINE_integer('batch_size', 3, 'Batch size.')
+flags.DEFINE_integer('batch_size', 10, 'Batch size.')
 FLAGS = flags.FLAGS
 MOVING_AVERAGE_DECAY = 0.9999
 model_save_dir = './models'
 var_dict = {}
 use_pretrained_model = True
-pretrained_file_name = "./models/c3d_finetuning_26labels.npy"
+pretrained_file_name = "./models/nopretrain.npy"
 data_dict = {}
 
 
-def save_npy(sess, npy_path="./models/c3d_finetuning_result26.npy"):
+def save_npy(sess, npy_path="./models/nopretrain_result.npy"):
     assert isinstance(sess, tf.Session)
     data_dict = {}
     for name, var in list(var_dict.items()):
@@ -144,8 +144,8 @@ def _variable_with_weight_decay(name, shape, wd):
   return var
 
 def run_training():
-  train_sample = read_sample_data.SampleData('shuffle_sample_16_desc.txt', fstart = 0, fend = 200000, height = c3d_model.CROP_SIZE, width = c3d_model.CROP_SIZE, interpolate_size = 16, start_cnt = 0, label_from = 101, label_to=125)
-  test_sample = read_sample_data.SampleData('shuffle_sample_16_desc.txt', fstart = 200000, fend = -1, height = c3d_model.CROP_SIZE, width = c3d_model.CROP_SIZE, interpolate_size = 16, start_cnt = 0, label_from = 101, label_to=125)
+  train_sample = read_sample_data.SampleData('shuffle_sample_16_desc.txt', d = 'train/', fstart = 0, fend = -1, height = c3d_model.CROP_SIZE, width = c3d_model.CROP_SIZE, interpolate_size = 16, start_cnt = 0, label_from = 126, label_to=150)
+  test_sample = read_sample_data.SampleData('shuffle_valid_sample_16_desc.txt', d = 'valid/', fstart = 0, fend = -1, height = c3d_model.CROP_SIZE, width = c3d_model.CROP_SIZE, interpolate_size = 16, start_cnt = 0, label_from = 126, label_to=150)
   # Get the sets of images and labels for training, validation, and
   # Tell TensorFlow that the model will be built into the default Graph.
 
@@ -170,8 +170,8 @@ def run_training():
     tower_grads1 = []
     tower_grads2 = []
     logits = []
-    opt1 = tf.train.AdamOptimizer(1e-4)
-    opt2 = tf.train.AdamOptimizer(2e-4)
+    opt1 = tf.train.AdamOptimizer(5*1e-4)
+    opt2 = tf.train.AdamOptimizer(5*2e-4)
     for i_run in range(RUN):
       for gpu_index in range(0, gpu_num):
         with tf.device('/gpu:%d' % gpu_index):
@@ -186,7 +186,7 @@ def run_training():
                 'wc4b': _variable_with_weight_decay('wc4b', [3, 3, 3, 512, 512], 0.0005),
                 'wc5a': _variable_with_weight_decay('wc5a', [3, 3, 3, 512, 512], 0.0005),
                 'wc5b': _variable_with_weight_decay('wc5b', [3, 3, 3, 512, 512], 0.0005),
-                'wd1': _variable_with_weight_decay('wd1', [25088, 4096], 0.0005),
+                'wd1': _variable_with_weight_decay('wd1', [8192, 4096], 0.0005),
                 'wd2': _variable_with_weight_decay('wd2', [4096, 4096], 0.0005),
                 'out': _variable_with_weight_decay('wout', [4096, c3d_model.NUM_CLASSES], 0.0005)
                 }
@@ -217,8 +217,8 @@ def run_training():
                             logit,
                             labels_placeholder[i_run * FLAGS.batch_size * gpu_num + gpu_index * FLAGS.batch_size: i_run * FLAGS.batch_size * gpu_num + (gpu_index + 1) * FLAGS.batch_size]
                             )
-            grads1 = opt1.compute_gradients(loss, varlist1, aggregation_method=2)
-            grads2 = opt2.compute_gradients(loss, varlist2, aggregation_method=2)
+            grads1 = opt1.compute_gradients(loss, varlist1)
+            grads2 = opt2.compute_gradients(loss, varlist2)
             tower_grads1.append(grads1)
             tower_grads2.append(grads2)
             logits.append(logit)

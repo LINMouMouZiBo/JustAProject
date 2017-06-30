@@ -4,9 +4,10 @@ import random
 import math
 # 101 150
 class SampleData:
-    def __init__(self, filename, fstart = 0, fend = -1, height = 240, width = 320, start_cnt = 0, interpolate_size = 16, label_from = 1, label_to = 249):
+    def __init__(self, filename, d = 'train/' ,fstart = 0, fend = -1, height = 240, width = 320, start_cnt = 0, interpolate_size = 16, label_from = 1, label_to = 249):
         self.desc_filename = filename
         self.p = '/share/data/CodaLab/ConGD/ConGD_phase_1/'
+        self.d = d
         self.fstart = fstart
         self.fend = fend
         self.height = height
@@ -16,6 +17,7 @@ class SampleData:
         self.label_from = label_from
         self.label_to = label_to
         self.read_desc()
+        print(len(self.meta_data))
 
     def read_desc(self):
         with open(self.desc_filename) as f:
@@ -55,8 +57,8 @@ class SampleData:
         end = self.meta_data[n]['end']
         label = self.meta_data[n]['label']
 
-        rgb_cap = cv2.VideoCapture(self.p + 'train/' + video_rgb_name)
-        deep_cap = cv2.VideoCapture(self.p + 'train/' + video_deep_name)
+        rgb_cap = cv2.VideoCapture(self.p + self.d + video_rgb_name)
+        deep_cap = cv2.VideoCapture(self.p + self.d + video_deep_name)
         two_channel_frames = []
 
         for j in range(1, end + 1):
@@ -98,8 +100,8 @@ class SampleData:
         return values, labels
 
 if __name__ == '__main__':
-    sample = SampleData('shuffle_sample_16_desc.txt', interpolate_size = 16, label_from = 101, label_to=125)
-    values, labels = sample.batch(size = 20)
+    sample = SampleData('shuffle_sample_16_desc.txt', fstart = 0, fend = 50000, start_cnt = 0,interpolate_size = 16, label_from = 101, label_to=125)
+    values, labels = sample.batch(size = 10)
     print labels
     # sample = SampleData('shuffle_sample_32_10_desc.txt', interpolate_size = 32)
     # values, labels = sample.batch(size = 20)
