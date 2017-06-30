@@ -2,9 +2,11 @@ import numpy as np
 import cv2
 
 class ValidationData:
-    def __init__(self, height = 240, width = 320):
+    def __init__(self, height = 240, width = 320, fstart = 0, fend = -1,):
         self.p = '/share/data/CodaLab/ConGD/ConGD_phase_1/'
         self.filename = 'train.txt'
+        self.fstart = fstart
+        self.fend = fend
         self.sample_size = 16
         self.sample_stride = 4
         self.height = height
@@ -13,7 +15,7 @@ class ValidationData:
     def read_desc(self):
         self.meta_data = []
         with open(self.p+self.filename) as f:
-            lines = f.readlines()
+            lines = f.readlines()[self.fstart: self.fend]
             self.length = len(lines)
             for line in lines:
                 line = line.split(' ')[0]
