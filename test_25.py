@@ -42,7 +42,7 @@ FLAGS = flags.FLAGS
 model_save_dir = './models'
 var_dict = {}
 use_pretrained_model = True
-pretrained_file_name = "./models/nopretrain_result_101-125.npy"
+pretrained_file_name = "./models/nopretrain_result_101-125.npy" # to change
 
 def placeholder_inputs(batch_size):
   """Generate placeholder variables to represent the input tensors.
@@ -145,7 +145,7 @@ def run_testing():
           logits.append(logit)
           tf.get_variable_scope().reuse_variables()
     logits = tf.concat(logits, 0)
-    
+    softmax = tf.nn.softmax(logits)
     prediction = tf.argmax(logits, 1)
 
     with tf.variable_scope(tf.get_variable_scope(), reuse=False):
@@ -178,8 +178,21 @@ def run_testing():
               images_placeholder: [sample],
             })[0]
           if label != 0:
-            label += 100
-          buf.append(str(start) + ',' + str(end) + ':' + str(label))
+            label += 100 # to change
+          softmax_arr = sess.run(softmax, feed_dict = {
+              images_placeholder: [sample],
+            })[0]
+
+          arr_buf = '['
+          first = True
+          for i in range(len(softmax_arr)):
+            if not first:
+              arr_buf += ';'
+            arr_buf += str(softmax_arr[i])
+            first = False
+          arr_buf += ']'
+          buf.append(str(start) + ',' + str(end) + ':' + str(label) + '~' + arr_buf)
+
 
         valid_file_handle.write(' '.join(buf) + '\n')
     print("done")
