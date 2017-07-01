@@ -160,8 +160,9 @@ def run_testing():
                                       )
                       )
       sess.run(init)
-
+      exp_T = 1
       for i in range(vd.length):
+        start_time = time.time()
         print i
         buf = []
         try:
@@ -174,25 +175,31 @@ def run_testing():
           sample = samples[j]['sample']
           start = samples[j]['start']
           end = samples[j]['end']
-          label = sess.run(prediction, feed_dict = {
+          label,softmax_arr = sess.run([prediction,softmax], feed_dict = {
               images_placeholder: [sample],
-            })[0]
+            })
+          label = label[0]
+          softmax_arr = softmax_arr[0]
           if label != 0:
             label += 100 # to change
-          softmax_arr = sess.run(softmax, feed_dict = {
-              images_placeholder: [sample],
-            })[0]
+          # softmax_arr = sess.run(softmax, feed_dict = {
+          #     images_placeholder: [sample],
+          #   })[0]
 
           arr_buf = '['
           first = True
-          for i in range(len(softmax_arr)):
+          for k in range(len(softmax_arr)):
             if not first:
               arr_buf += ';'
-            arr_buf += str(softmax_arr[i])
+            arr_buf += str(softmax_arr[k])
             first = False
           arr_buf += ']'
           buf.append(str(start) + ',' + str(end) + ':' + str(label) + '~' + arr_buf)
-
+        T = time.time() - start_time
+        exp_T = 0.9 * exp_T + 0.1 * T
+        total_T = (vd.length - i) * exp_T
+        if i % 10 == 0:
+          print 'exp time = ', total_T, 's'
 
         valid_file_handle.write(' '.join(buf) + '\n')
     print("done")
