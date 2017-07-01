@@ -30,7 +30,7 @@ import c3d_model
 import math
 import numpy as np
 import read_valid_data
-import train_as_valid_data
+import read_valid_data
 
 # Basic model parameters as external flags.
 flags = tf.app.flags
@@ -42,7 +42,7 @@ FLAGS = flags.FLAGS
 model_save_dir = './models'
 var_dict = {}
 use_pretrained_model = True
-pretrained_file_name = "./models/c3d_finetuning_result26.npy"
+pretrained_file_name = "./models/nopretrain_result_101-125.npy"
 
 def placeholder_inputs(batch_size):
   """Generate placeholder variables to represent the input tensors.
@@ -85,10 +85,10 @@ def _variable_with_weight_decay(name, shape, wd):
   return var
 
 def run_testing():
-  vd = train_as_valid_data.ValidationData(height = 112, width = 112, fstart = -2000, fend = -1)
+  vd = read_valid_data.ValidationData(height = 112, width = 112)
 
   # vd = read_valid_data.ValidationData(height = 112, width = 112, sample_size = 32, sample_stride = 2)
-  valid_file_handle = open('valid_result.txt', "w")
+  valid_file_handle = open('valid_result_101-125.txt', "w")
   # Get the sets of images and labels for training, validation, and
   # Tell TensorFlow that the model will be built into the default Graph.
 
@@ -177,6 +177,8 @@ def run_testing():
           label = sess.run(prediction, feed_dict = {
               images_placeholder: [sample],
             })[0]
+          if label != 0:
+            label += 100
           buf.append(str(start) + ',' + str(end) + ':' + str(label))
 
         valid_file_handle.write(' '.join(buf) + '\n')
